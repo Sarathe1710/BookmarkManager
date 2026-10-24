@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkVault — Professional Bookmark Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-bookmark"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-name">LinkVault</span>
+                    <span class="logo-tagline">Bookmark Manager</span>
+                </div>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <span class="nav-section-title">MAIN</span>
+                <a href="#" class="nav-item active" data-view="all">
+                    <i class="fas fa-layer-group"></i>
+                    <span>All Bookmarks</span>
+                    <span class="nav-badge" id="totalCount">0</span>
+                </a>
+                <a href="#" class="nav-item" data-view="favorites">
+                    <i class="fas fa-star"></i>
+                    <span>Favorites</span>
+                    <span class="nav-badge" id="favCount">0</span>
+                </a>
+                <a href="#" class="nav-item" data-view="recent">
+                    <i class="fas fa-clock"></i>
+                    <span>Recently Added</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <span class="nav-section-title">CATEGORIES</span>
+                <div id="categoryNav"></div>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-sidebar-action" id="importBtn" title="Import Bookmarks">
+                <i class="fas fa-file-import"></i>
+                <span>Import</span>
+            </button>
+            <button class="btn-sidebar-action" id="exportBtn" title="Export Bookmarks">
+                <i class="fas fa-file-export"></i>
+                <span>Export</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search bookmarks by title, URL, or tag...">
+                    <kbd class="search-shortcut">Ctrl+K</kbd>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view-mode="grid" title="Grid View">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button class="view-btn" data-view-mode="list" title="List View">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+                <div class="sort-dropdown">
+                    <button class="sort-btn" id="sortBtn">
+                        <i class="fas fa-sort-amount-down"></i>
+                        <span>Sort</span>
+                    </button>
+                    <div class="sort-menu" id="sortMenu">
+                        <a href="#" class="sort-option active" data-sort="newest">
+                            <i class="fas fa-clock"></i> Newest First
+                        </a>
+                        <a href="#" class="sort-option" data-sort="oldest">
+                            <i class="fas fa-history"></i> Oldest First
+                        </a>
+                        <a href="#" class="sort-option" data-sort="alpha">
+                            <i class="fas fa-sort-alpha-down"></i> A — Z
+                        </a>
+                        <a href="#" class="sort-option" data-sort="alpha-desc">
+                            <i class="fas fa-sort-alpha-up"></i> Z — A
+                        </a>
+                    </div>
+                </div>
+                <button class="btn-primary" id="addBookmarkBtn">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Bookmark</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <h1 class="page-title" id="pageTitle">All Bookmarks</h1>
+                <p class="page-subtitle" id="pageSubtitle">Manage and organize your web resources efficiently</p>
+            </div>
+            <div class="stats-row" id="statsRow">
+                <div class="stat-chip">
+                    <i class="fas fa-link"></i>
+                    <span id="statTotal">0 bookmarks</span>
+                </div>
+                <div class="stat-chip">
+                    <i class="fas fa-folder"></i>
+                    <span id="statCategories">0 categories</span>
+                </div>
+                <div class="stat-chip">
+                    <i class="fas fa-star"></i>
+                    <span id="statFavorites">0 favorites</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookmarks Grid -->
+        <div class="bookmarks-container" id="bookmarksContainer">
+            <div class="bookmarks-grid" id="bookmarksGrid">
+                <!-- Bookmarks rendered here -->
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <div class="empty-illustration">
+                <i class="fas fa-bookmark"></i>
+            </div>
+            <h2>No bookmarks yet</h2>
+            <p>Start building your personal library of web resources. Click the button below to add your first bookmark.</p>
+            <button class="btn-primary btn-lg" id="emptyAddBtn">
+                <i class="fas fa-plus"></i> Add Your First Bookmark
+            </button>
+        </div>
+
+        <!-- No Results State -->
+        <div class="empty-state" id="noResults" style="display:none;">
+            <div class="empty-illustration search-empty">
+                <i class="fas fa-search"></i>
+            </div>
+            <h2>No results found</h2>
+            <p>Try adjusting your search terms or browse a different category.</p>
+        </div>
+    </main>
+
+    <!-- Add/Edit Bookmark Modal -->
+    <div class="modal-overlay" id="bookmarkModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle"><i class="fas fa-plus-circle"></i> Add New Bookmark</h2>
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="bookmarkForm" class="modal-body">
+                <input type="hidden" id="bookmarkId">
+                
+                <div class="form-group">
+                    <label for="bookmarkUrl">
+                        <i class="fas fa-link"></i> Website URL <span class="required">*</span>
+                    </label>
+                    <input type="url" id="bookmarkUrl" placeholder="https://example.com" required>
+                    <span class="form-hint">Enter the full URL including https://</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="bookmarkTitle">
+                        <i class="fas fa-heading"></i> Title <span class="required">*</span>
+                    </label>
+                    <input type="text" id="bookmarkTitle" placeholder="My Awesome Website" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="bookmarkDescription">
+                        <i class="fas fa-align-left"></i> Description
+                    </label>
+                    <textarea id="bookmarkDescription" placeholder="Brief description of this website..." rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bookmarkCategory">
+                            <i class="fas fa-folder"></i> Category <span class="required">*</span>
+                        </label>
+                        <div class="select-wrapper">
+                            <select id="bookmarkCategory" required>
+                                <option value="">Select a category</option>
+                                <option value="Education">📚 Education</option>
+                                <option value="Development">💻 Development</option>
+                                <option value="Design">🎨 Design</option>
+                                <option value="Documentation">📖 Documentation</option>
+                                <option value="Tutorials">🎓 Tutorials</option>
+                                <option value="Tools">🔧 Tools</option>
+                                <option value="News">📰 News & Media</option>
+                                <option value="Social">💬 Social Media</option>
+                                <option value="Entertainment">🎬 Entertainment</option>
+                                <option value="Finance">💰 Finance</option>
+                                <option value="Health">🏥 Health & Wellness</option>
+                                <option value="Shopping">🛒 Shopping</option>
+                                <option value="Travel">✈️ Travel</option>
+                                <option value="Other">📌 Other</option>
+                                <option value="__custom__">➕ Add Custom Category...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookmarkTags">
+                            <i class="fas fa-tags"></i> Tags
+                        </label>
+                        <input type="text" id="bookmarkTags" placeholder="react, javascript, frontend">
+                        <span class="form-hint">Comma-separated tags</span>
+                    </div>
+                </div>
+
+                <div class="form-group" id="customCategoryGroup" style="display:none;">
+                    <label for="customCategory">
+                        <i class="fas fa-plus"></i> Custom Category Name
+                    </label>
+                    <input type="text" id="customCategory" placeholder="Enter custom category name">
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="bookmarkFavorite">
+                        <span class="checkbox-custom"></span>
+                        <i class="fas fa-star"></i> Mark as Favorite
+                    </label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="modalCancel">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> <span id="submitBtnText">Save Bookmark</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal modal-sm">
+            <div class="modal-header modal-header-danger">
+                <h2><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h2>
+                <button class="modal-close" id="deleteModalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="delete-message">Are you sure you want to delete <strong id="deleteBookmarkName"></strong>? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="deleteCancelBtn">Cancel</button>
+                <button class="btn-danger" id="deleteConfirmBtn">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-import"></i> Import Bookmarks</h2>
+                <button class="modal-close" id="importModalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="import-dropzone" id="importDropzone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & drop your JSON file here</p>
+                    <span>or</span>
+                    <label class="btn-secondary btn-file">
+                        <i class="fas fa-folder-open"></i> Browse Files
+                        <input type="file" id="importFile" accept=".json" hidden>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
